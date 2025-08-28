@@ -1,8 +1,8 @@
 <?php // src/Services/TrackingService.php
 
-namespace M4dev\UspsShip\Services;
+namespace m4dev\UspsShip\Services;
 
-use M4dev\UspsShip\Http\HttpClient;
+use m4dev\UspsShip\Http\HttpClient;
 
 class TrackingService
 {

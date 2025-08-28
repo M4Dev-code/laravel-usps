@@ -1,9 +1,9 @@
 <?php // src/Http/HttpClient.php
 
-namespace M4dev\UspsShip\Http;
+namespace m4dev\UspsShip\Http;
 
 use GuzzleHttp\Client;
-use M4dev\UspsShip\Auth\OAuthTokenCache;
+use m4dev\UspsShip\Auth\OAuthTokenCache;
 
 class HttpClient
 {

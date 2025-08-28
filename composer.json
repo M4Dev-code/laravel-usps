@@ -3,6 +3,8 @@
   "description": "USPS shipping for Laravel: rates (Web Tools) + labels (Developer Portal)",
   "type": "library",
   "license": "MIT",
+  "minimum-stability" : "dev",
+  "prefer-stable" : true ,
   "autoload": {
     "psr-4": { "m4dev\\UspsShip\\": "src/" }
   },
@@ -24,3 +26,4 @@
   }
 
 }
+

@@ -1,9 +1,9 @@
 <?php // src/Services/RateService.php
 
-namespace M4dev\UspsShip\Services;
+namespace m4dev\UspsShip\Services;
 
 use GuzzleHttp\Client;
-use M4dev\UspsShip\Support\Xml;
+use m4dev\UspsShip\Support\Xml;
 
 class RateService
 {

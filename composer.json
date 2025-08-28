@@ -1,10 +1,10 @@
 {
-  "name": "M4dev/laravel-usps",
+  "name": "m4dev/laravel-usps",
   "description": "USPS shipping for Laravel: rates (Web Tools) + labels (Developer Portal)",
   "type": "library",
   "license": "MIT",
   "autoload": {
-    "psr-4": { "M4dev\\UspsShip\\": "src/" }
+    "psr-4": { "m4dev\\UspsShip\\": "src/" }
   },
   "require": {
     "php": ">=8.1",
@@ -15,11 +15,12 @@
   "extra": {
     "laravel": {
       "providers": [
-        "M4dev\\UspsShip\\UspsServiceProvider"
+        "m4dev\\UspsShip\\UspsServiceProvider"
       ],
       "aliases": {
-        "USPS": "M4dev\\UspsShip\\Facades\\USPS"
+        "USPS": "m4dev\\UspsShip\\Facades\\USPS"
       }
     }
   }
+
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace M4dev\UspsShip\Auth;
+namespace m4dev\UspsShip\Auth;
 
 use Illuminate\Support\Facades\Cache;
 use GuzzleHttp\Client;

@@ -1,10 +1,10 @@
 <?php // src/UspsServiceProvider.php
 
-namespace M4dev\UspsShip;
+namespace m4dev\UspsShip;
 
 use Illuminate\Support\ServiceProvider;
-use M4dev\UspsShip\Http\HttpClient;
-use M4dev\UspsShip\Services\{RateService, LabelService, TrackingService};
+use m4dev\UspsShip\Http\HttpClient;
+use m4dev\UspsShip\Services\{RateService, LabelService, TrackingService};
 
 class UspsServiceProvider extends ServiceProvider
 {

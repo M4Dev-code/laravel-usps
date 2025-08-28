@@ -1,6 +1,6 @@
 <?php // src/Support/Xml.php
 
-namespace M4dev\UspsShip\Support;
+namespace m4dev\UspsShip\Support;
 
 class Xml
 {

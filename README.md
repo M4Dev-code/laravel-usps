@@ -5,7 +5,7 @@ Laravel package to get USPS rates and create/cancel/download shipping labels and
 ## Install
 
 ```bash
-composer require M4Dev-code/laravel-usps
+composer require m4dev/laravel-usps
 php artisan vendor:publish --tag=config --provider="m4dev\\UspsShip\\UspsServiceProvider"
 ```
 

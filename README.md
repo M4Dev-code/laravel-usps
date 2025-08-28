@@ -6,7 +6,7 @@ Laravel package to get USPS rates and create/cancel/download shipping labels and
 
 ```bash
 composer require M4Dev-code/laravel-usps
-php artisan vendor:publish --tag=config --provider="Acme\\UspsShip\\UspsServiceProvider"
+php artisan vendor:publish --tag=config --provider="M4dev\\UspsShip\\UspsServiceProvider"
 ```
 
 
@@ -24,7 +24,7 @@ USPS_WEBTOOLS_USER_ID=xxxxxxxxxxxx
 ## Rates (temporary via Web Tools)
 
 ```php
-use Acme\UspsShip\Services\RateService;
+use M4dev\UspsShip\Services\RateService;
 
 $rates = app(RateService::class)->domestic([
     'weight_oz' => 12,
@@ -39,7 +39,7 @@ $rates = app(RateService::class)->domestic([
 ## Create a domestic label (Developer Portal)
 
 ```php
-use Acme\UspsShip\Services\LabelService;
+use M4dev\UspsShip\Services\LabelService;
 
 $label = app(LabelService::class)->createDomestic([
   'to' => [
@@ -64,7 +64,7 @@ app(LabelService::class)->cancel('9400...');
 ## Track a package
 
 ```php
-use Acme\UspsShip\Services\TrackingService;
+use M4dev\UspsShip\Services\TrackingService;
 
 $events = app(TrackingService::class)->track('9400...');
 ```
@@ -75,11 +75,8 @@ $events = app(TrackingService::class)->track('9400...');
 - Keep Web Tools only for rates until USPS exposes modern pricing endpoints you can adopt; plan to remove XML later.
 - Map your service codes to USPS service types as returned by the API.
 
-````
 
----
-
-## 11) Optional: simple controller examples (drop into your app)
+##  simple controller examples (drop into your app)
 
 ```php
 <?php // app/Http/Controllers/ShippingController.php
@@ -87,7 +84,7 @@ $events = app(TrackingService::class)->track('9400...');
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Acme\UspsShip\Services\{RateService, LabelService, TrackingService};
+use M4dev\UspsShip\Services\{RateService, LabelService, TrackingService};
 
 class ShippingController extends Controller
 {

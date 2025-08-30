@@ -27,7 +27,7 @@ A comprehensive Laravel package for USPS shipping integration with support for a
 1. Install via Composer:
 
 ```bash
-composer require m4dev/usps-laravel
+composer require m4dev/laravel-usps
 ```
 
 2. Publish the configuration file:

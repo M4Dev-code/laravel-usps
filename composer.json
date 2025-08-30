@@ -1,5 +1,5 @@
 {
-    "name": "m4dev/usps-laravel",
+    "name": "m4dev/laravel-usps",
     "description": "Laravel package for USPS shipping integration with rates, labels, and tracking",
     "type": "library",
     "keywords": ["laravel", "usps", "shipping", "labels", "tracking", "rates"],
@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "laravel/framework": "^10.0|^11.0|^12.0",
         "ext-curl": "*",
         "ext-json": "*"
@@ -45,3 +45,4 @@
     "prefer-stable": true
 
 }
+

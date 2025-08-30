@@ -1,48 +1,106 @@
 <?php
 
 return [
-    // Toggle between USPS Sandbox and Production
-    'env' => env('USPS_ENV', 'sandbox'), // 'sandbox' | 'production'
+    /*
+    |--------------------------------------------------------------------------
+    | USPS API Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for USPS shipping API integration using OAuth2
+    |
+    */
 
-    // Developer Portal (OAuth 2.0) for Labels/Tracking
-    'oauth' => [
-        'client_id' => env('USPS_CLIENT_ID'),
-        'client_secret' => env('USPS_CLIENT_SECRET'),
-        'token_url' => env('USPS_TOKEN_URL', 'https://api.usps.com/oauth2/v3/token'),
-        'scopes' => env('USPS_SCOPES', 'labels'), // comma-separated, adjust as needed
-        'cache_key' => 'usps.oauth.token',
-        'timeout' => 10,
+    'client_id' => env('USPS_CLIENT_ID'),
+    'client_secret' => env('USPS_CLIENT_SECRET'),
+
+    'sandbox' => env('USPS_SANDBOX', true),
+
+    'default_service' => env('USPS_DEFAULT_SERVICE', 'USPS_GROUND_ADVANTAGE'),
+
+    'label_format' => env('USPS_LABEL_FORMAT', 'PDF'),
+    'label_type' => env('USPS_LABEL_TYPE', 'SHIPPING_LABEL_ONLY'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Sender Information
+    |--------------------------------------------------------------------------
+    |
+    | Default sender/return address information for shipments
+    |
+    */
+    'default_sender' => [
+        'name' => env('USPS_SENDER_NAME', ''),
+        'company' => env('USPS_SENDER_COMPANY', ''),
+        'street' => env('USPS_SENDER_STREET', ''),
+        'street2' => env('USPS_SENDER_STREET2', ''),
+        'city' => env('USPS_SENDER_CITY', ''),
+        'state' => env('USPS_SENDER_STATE', ''),
+        'zip' => env('USPS_SENDER_ZIP', ''),
+        'phone' => env('USPS_SENDER_PHONE', ''),
+        'email' => env('USPS_SENDER_EMAIL', ''),
     ],
 
-    // API bases (override if USPS changes hosts)
-    'base_urls' => [
-        'sandbox' => [
-            'labels'   => 'https://api-sandbox.usps.com/labels/v3',
-            'tracking' => 'https://api-sandbox.usps.com/tracking/v3',
+    /*
+    |--------------------------------------------------------------------------
+    | Service Types
+    |--------------------------------------------------------------------------
+    |
+    | Available USPS service types and their configurations
+    |
+    */
+    'services' => [
+        'USPS_GROUND_ADVANTAGE' => [
+            'name' => 'USPS Ground Advantage',
+            'delivery_days' => '2-5',
+            'max_weight' => 70,
         ],
-        'production' => [
-            'labels'   => 'https://api.usps.com/labels/v3',
-            'tracking' => 'https://api.usps.com/tracking/v3',
+        'PRIORITY_MAIL' => [
+            'name' => 'Priority Mail',
+            'delivery_days' => '1-3',
+            'max_weight' => 70,
         ],
+        'PRIORITY_MAIL_EXPRESS' => [
+            'name' => 'Priority Mail Express',
+            'delivery_days' => '1-2',
+            'max_weight' => 70,
+        ],
+        'FIRST_CLASS_MAIL' => [
+            'name' => 'First-Class Mail',
+            'delivery_days' => '1-5',
+            'max_weight' => 15.999,
+        ],
+        'PARCEL_SELECT' => [
+            'name' => 'Parcel Select Ground',
+            'delivery_days' => '2-8',
+            'max_weight' => 70,
+        ]
     ],
 
-    // Web Tools XML for rates (use until you move to new price APIs)
-    'webtools' => [
-        'user_id' => env('USPS_WEBTOOLS_USER_ID'),
-        'timeout' => 10,
-        'rate_url' => env('USPS_RATE_URL', 'https://secure.shippingapis.com/ShippingAPI.dll'),
+    /*
+    |--------------------------------------------------------------------------
+    | Caching
+    |--------------------------------------------------------------------------
+    |
+    | Configure caching for API responses
+    |
+    */
+    'cache' => [
+        'enabled' => env('USPS_CACHE_ENABLED', true),
+        'duration' => env('USPS_CACHE_DURATION', 3600), // 1 hour
+        'prefix' => 'usps_',
     ],
 
-    // Default shipper info for label creation (override per call as needed)
-    'shipper' => [
-        'name' => env('USPS_SHIPPER_NAME', ''),
-        'company' => env('USPS_SHIPPER_COMPANY', ''),
-        'phone' => env('USPS_SHIPPER_PHONE', ''),
-        'address1' => env('USPS_SHIPPER_ADDRESS1', ''),
-        'address2' => env('USPS_SHIPPER_ADDRESS2', ''),
-        'city' => env('USPS_SHIPPER_CITY', ''),
-        'state' => env('USPS_SHIPPER_STATE', ''),
-        'postal_code' => env('USPS_SHIPPER_POSTAL', ''),
-        'country' => env('USPS_SHIPPER_COUNTRY', 'US'),
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Shopping
+    |--------------------------------------------------------------------------
+    |
+    | Configure automatic rate shopping across services
+    |
+    */
+    'rate_shopping' => [
+        'enabled' => env('USPS_RATE_SHOPPING', false),
+        'services' => ['USPS_GROUND_ADVANTAGE', 'PRIORITY_MAIL', 'PRIORITY_MAIL_EXPRESS'],
+        'sort_by' => 'price', // 'price' or 'delivery_time'
     ],
 ];

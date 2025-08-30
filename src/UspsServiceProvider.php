@@ -1,31 +1,60 @@
-<?php // src/UspsServiceProvider.php
+<?php
 
-namespace m4dev\UspsShip;
+namespace UspsShipping\Laravel;
 
 use Illuminate\Support\ServiceProvider;
-use m4dev\UspsShip\Http\HttpClient;
-use m4dev\UspsShip\Services\{RateService, LabelService, TrackingService};
 
 class UspsServiceProvider extends ServiceProvider
 {
+    /**
+     * Register services.
+     */
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/usps.php', 'usps');
-
-        $this->app->singleton(HttpClient::class, function ($app) {
-            return new HttpClient(config('usps'));
+        $this->app->singleton('usps', function ($app) {
+            return new UspsClient($app['config']['usps']);
         });
 
-        $this->app->bind(RateService::class, fn($app) => new RateService(config('usps')));
-        $this->app->bind(LabelService::class, fn($app) => new LabelService($app->make(HttpClient::class), config('usps')));
-        $this->app->bind(TrackingService::class, fn($app) => new TrackingService($app->make(HttpClient::class), config('usps')));
+        $this->app->bind(Services\AddressValidationService::class, function ($app) {
+            return new Services\AddressValidationService($app['usps']);
+        });
+
+        $this->app->bind(Services\RateService::class, function ($app) {
+            return new Services\RateService($app['usps'], $app['config']['usps']);
+        });
+
+        $this->app->bind(Services\LabelService::class, function ($app) {
+            return new Services\LabelService($app['usps'], $app['config']['usps']);
+        });
+
+        $this->app->bind(Services\TrackingService::class, function ($app) {
+            return new Services\TrackingService($app['usps']);
+        });
+
+        $this->app->bind(Services\UspsShippingService::class, function ($app) {
+            return new Services\UspsShippingService($app['usps']);
+        });
+
+        $this->mergeConfigFrom(__DIR__ . '/../config/usps.php', 'usps');
     }
 
+    /**
+     * Bootstrap services.
+     */
     public function boot(): void
     {
         $this->publishes([
             __DIR__ . '/../config/usps.php' => config_path('usps.php'),
-        ], 'config');
-        $this->loadRoutesFrom(__DIR__ . '/../routes/usps-webhooks.php');
+        ], 'usps-config');
+
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                Commands\TestUspsConnection::class,
+                Commands\UpdateTrackingCommand::class,
+                Commands\CleanupCacheCommand::class,
+            ]);
+        }
     }
 }

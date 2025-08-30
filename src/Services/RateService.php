@@ -1,46 +1,102 @@
-<?php // src/Services/RateService.php
+<?php
 
-namespace m4dev\UspsShip\Services;
+namespace UspsShipping\Laravel\Services;
 
-use GuzzleHttp\Client;
-use m4dev\UspsShip\Support\Xml;
+use UspsShipping\Laravel\UspsClient;
+use UspsShipping\Laravel\Models\UspsRateCache;
 
 class RateService
 {
+    protected UspsClient $client;
     protected array $config;
-    protected Client $http;
 
-    public function __construct(array $config)
+    public function __construct(UspsClient $client, array $config)
     {
+        $this->client = $client;
         $this->config = $config;
-        $this->http = new Client(['timeout' => $config['webtools']['timeout'] ?? 10]);
     }
 
-    /**
-     * Get domestic rates (RateV4 API, XML)
-     *
-     * @param array $package [weight_oz, zip_orig, zip_dest, size, container, machinable]
-     */
-    public function domestic(array $package): array
+    public function getRates(array $params, bool $useCache = true): array
     {
-        $xml = Xml::buildRateV4([
-            'user_id' => $this->config['webtools']['user_id'],
-            'package' => $package,
-        ]);
+        if ($useCache && $this->config['cache']['enabled']) {
+            $cacheKey = $this->generateCacheKey($params);
+            $cachedRates = UspsRateCache::getCachedRates($cacheKey);
 
-        $query = ['API' => 'RateV4', 'XML' => $xml];
-        $resp = $this->http->get($this->config['webtools']['rate_url'], ['query' => $query]);
-        $body = (string) $resp->getBody();
-        $dom = simplexml_load_string($body);
-
-        $out = [];
-        foreach ($dom->Package->Postage ?? [] as $p) {
-            $out[] = [
-                'mail_service' => (string) $p->MailService,
-                'rate' => (float) $p->Rate,
-                'class_id' => (string) $p['CLASSID'],
-            ];
+            if ($cachedRates) {
+                return $cachedRates;
+            }
         }
-        return $out;
+
+        $rates = $this->fetchRates($params);
+
+        if ($useCache && $this->config['cache']['enabled']) {
+            UspsRateCache::cacheRates(
+                $this->generateCacheKey($params),
+                $params,
+                $rates,
+                $this->config['cache']['duration']
+            );
+        }
+
+        return $rates;
+    }
+
+    protected function fetchRates(array $params): array
+    {
+        if ($this->config['rate_shopping']['enabled']) {
+            return $this->getRatesShopping($params);
+        }
+
+        return $this->client->getRates($params);
+    }
+
+    protected function getRatesShopping(array $params): array
+    {
+        $services = $this->config['rate_shopping']['services'];
+        $rates = [];
+
+        foreach ($services as $service) {
+            try {
+                $serviceParams = array_merge($params, ['mail_class' => $service]);
+                $serviceRates = $this->client->getRates($serviceParams);
+
+                if (isset($serviceRates['totalBasePrice'])) {
+                    $rates[] = array_merge($serviceRates, [
+                        'service_type' => $service,
+                        'service_name' => $this->config['services'][$service]['name'] ?? $service
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Log error but continue with other services
+                \Log::warning("Failed to get rates for service {$service}: " . $e->getMessage());
+            }
+        }
+
+        // Sort rates
+        $sortBy = $this->config['rate_shopping']['sort_by'];
+        if ($sortBy === 'price') {
+            usort($rates, fn($a, $b) => $a['totalBasePrice'] <=> $b['totalBasePrice']);
+        } elseif ($sortBy === 'delivery_time') {
+            // Sort by estimated delivery days
+            usort(
+                $rates,
+                fn($a, $b) =>
+                $this->getEstimatedDays($a['service_type']) <=>
+                    $this->getEstimatedDays($b['service_type'])
+            );
+        }
+
+        return ['rates' => $rates];
+    }
+
+    protected function getEstimatedDays(string $serviceType): int
+    {
+        $deliveryDays = $this->config['services'][$serviceType]['delivery_days'] ?? '5';
+        return (int) explode('-', $deliveryDays)[0];
+    }
+
+    protected function generateCacheKey(array $params): string
+    {
+        return $this->config['cache']['prefix'] . md5(serialize($params));
     }
 }
